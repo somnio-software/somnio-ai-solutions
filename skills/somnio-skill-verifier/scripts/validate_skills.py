@@ -314,7 +314,9 @@ def check_orphan_symlinks(repo_root: Path, plugins: list[Path], fix: bool) -> li
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("targets", nargs="*", help="skill folders to validate (default: every skill)")
     parser.add_argument("--repo-root", default=".", help="repository root (default: current directory)")
     parser.add_argument("--strict", action="store_true", help="treat warnings as errors")

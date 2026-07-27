@@ -6,12 +6,14 @@ on:
     paths:
       - "skills/**"
       - "plugins/**"
+      - "tests/**"
       - ".claude-plugin/**"
       - ".github/workflows/skills.yml"
   pull_request:
     paths:
       - "skills/**"
       - "plugins/**"
+      - "tests/**"
       - ".claude-plugin/**"
       - ".github/workflows/skills.yml"
   workflow_dispatch:
@@ -24,6 +26,7 @@ env:
   PLUGIN_NAME: somnio-ai-solutions
   VALIDATOR: skills/somnio-skill-verifier/scripts/validate_skills.py
   SYNC_README: skills/somnio-skill-creator/scripts/sync_readme.py
+  COVERAGE_MIN: "100"
 
 jobs:
   validate:
@@ -41,6 +44,10 @@ jobs:
 
       - name: Check the README skills table is in sync
         run: python3 "$SYNC_README" --check
+
+      # Same gate as the pre-push hook: per-file line coverage, not an average.
+      - name: Run the harness tests with the coverage gate
+        run: python3 tests/run_tests.py --min "$COVERAGE_MIN"
 
   package:
     name: Package plugin

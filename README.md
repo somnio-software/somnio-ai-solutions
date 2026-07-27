@@ -111,14 +111,44 @@ The plugin is saved locally to your machine. Repeat whenever the archive is upda
 
 ---
 
+## 🧪 Tests
+
+Every script inside a skill is covered by [`tests/`](./tests), and the gate is **100% line coverage per file** — not an aggregate average. A script no test imports reports 0% and fails.
+
+```bash
+make test        # run the suite (fast, no gate)
+make coverage    # run it with the per-file 100% gate
+```
+
+The suite is stdlib `unittest` driven by [`tests/run_tests.py`](./tests/run_tests.py), which measures coverage with the stdlib `trace` module — the same zero-dependency guarantee the skills have. Tests build real temporary repositories and call each script's `main()` in-process, so exit codes, symlinks and generated files are asserted against what actually lands on disk.
+
+[`tests/test_code_style.py`](./tests/test_code_style.py) is the missing linter: it enforces the line limit, module docstrings, the CLI contract of every skill script, and the ban on third-party imports.
+
+---
+
+## 🪝 Git hooks
+
+Versioned in [`.githooks/`](./.githooks). Enable once per clone:
+
+```bash
+make hooks       # git config core.hooksPath .githooks
+```
+
+`pre-push` runs the same three gates as CI — skill validation, README sync, and the tests at 100% per-file coverage — and blocks the push when any fails.
+
+- Lower the threshold for one push: `COVERAGE_MIN=95 git push`
+- Bypass intentionally: `git push --no-verify`
+
+---
+
 ## 🤖 Pipeline
 
 [`.github/workflows/skills.yml`](./.github/workflows/skills.yml) owns everything mechanical.
 
 | Trigger | What runs |
 |:--------|:----------|
-| Pull request touching `skills/` or `plugins/` | Validates every skill and fails if the README table is stale |
-| Push to `main` touching `skills/` or `plugins/` | Repairs symlinks, syncs the README, rebuilds `plugins/somnio-ai-solutions.zip`, verifies it is self-contained, and commits it back |
+| Pull request touching `skills/`, `plugins/` or `tests/` | Validates every skill, fails if the README table is stale, runs the tests with the coverage gate |
+| Push to `main` touching the same paths | Repairs symlinks, syncs the README, rebuilds `plugins/somnio-ai-solutions.zip`, verifies it is self-contained, and commits it back |
 
 The archive is committed by the pipeline, so **never commit a locally built `.zip`**. Timestamps are normalized before zipping, so a run with no real change produces no commit.
 
@@ -131,9 +161,12 @@ somnio-ai-solutions/
 ├── CLAUDE.md                                 # Repo-wide rules for Claude Code
 ├── Makefile                                  # Thin entry points to the skills' scripts
 ├── README.md                                 # This file
+├── .claude/rules/python/                     # Python rules, adapted from somnio-ai-tools
 ├── .claude-plugin/
 │   └── marketplace.json                      # Makes this repo a Claude Code marketplace
-├── .github/workflows/skills.yml              # Validate on PR · package + commit on main
+├── .githooks/pre-push                        # Validate · sync · test before every push
+├── .github/workflows/skills.yml              # Validate + test on PR · package on main
+├── tests/                                    # Suite + the 100% per-file coverage gate
 ├── skills/                                   # Source of truth — one folder per skill
 │   ├── somnio-skill-creator/
 │   │   ├── SKILL.md
@@ -186,9 +219,12 @@ python3 skills/somnio-skill-creator/scripts/scaffold_skill.py <skill-name> \
 
 ```bash
 make help          # list every target
+make hooks         # enable the versioned pre-push hook (once per clone)
 make validate      # frontmatter, naming, references and plugin symlinks
 make fix           # recreate missing plugin symlinks, drop orphans
 make sync          # regenerate the Skills table in this README
+make test          # run the harness test suite
+make coverage      # run it with the 100% per-file gate
 make check         # what CI checks on a pull request
 make zip           # build the archive locally (CI does it on merge)
 ```
@@ -202,9 +238,10 @@ Skills are invoked from Claude Code or Claude Cowork once the plugin is installe
 Internal contribution workflow:
 
 1. Create a feature branch from `main`.
-2. Follow [`CLAUDE.md`](./CLAUDE.md) and the [authoring standard](./skills/somnio-skill-creator/references/authoring-standard.md).
-3. Run the `somnio-skill-verifier` skill on what you changed, and make `make check` pass.
-4. Open a pull request and request review from the relevant team.
+2. Enable the hooks once with `make hooks`.
+3. Follow [`CLAUDE.md`](./CLAUDE.md), the [authoring standard](./skills/somnio-skill-creator/references/authoring-standard.md), and the [Python rules](./.claude/rules) when touching scripts.
+4. Run the `somnio-skill-verifier` skill on what you changed, and make `make check` pass.
+5. Open a pull request and request review from the relevant team.
 
 ---
 

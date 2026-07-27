@@ -4,9 +4,10 @@
 # Ask Claude Code for those skills instead of driving them by hand when you can.
 
 .DEFAULT_GOAL := help
-.PHONY: help validate fix sync sync-check check zip
+.PHONY: help validate fix sync sync-check test coverage check hooks zip
 
 PYTHON ?= python3
+COVERAGE_MIN ?= 100
 PLUGIN_NAME := somnio-ai-solutions
 VALIDATOR := skills/somnio-skill-verifier/scripts/validate_skills.py
 SYNC_README := skills/somnio-skill-creator/scripts/sync_readme.py
@@ -29,7 +30,17 @@ sync: ## Regenerate the README skills table
 sync-check: ## Fail if the README skills table is out of date
 	@$(PYTHON) $(SYNC_README) --check
 
-check: validate sync-check ## Everything CI checks on a pull request
+test: ## Run the harness test suite without the coverage gate
+	@$(PYTHON) tests/run_tests.py --no-coverage
+
+coverage: ## Run the test suite and enforce per-file line coverage
+	@$(PYTHON) tests/run_tests.py --min $(COVERAGE_MIN)
+
+check: validate sync-check coverage ## Everything CI checks on a pull request
+
+hooks: ## Enable the versioned git hooks in .githooks (once per clone)
+	@git config core.hooksPath .githooks
+	@echo "core.hooksPath = .githooks — pre-push now validates, syncs and tests."
 
 zip: check ## Build the plugin archive locally (CI does this automatically on main)
 	@cd plugins && rm -f $(PLUGIN_NAME).zip && zip -r $(PLUGIN_NAME).zip $(PLUGIN_NAME)/ \

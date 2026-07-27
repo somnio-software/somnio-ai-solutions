@@ -28,13 +28,15 @@ source of truth for every area repository — update it there, never fork it.
   folder. Never a copy.
 - `plugins/somnio-ai-solutions/.claude-plugin/plugin.json` — the plugin manifest.
 - `.claude-plugin/marketplace.json` — makes the repo installable as a marketplace.
+- `tests/` — the harness test suite and its coverage gate.
+- `.githooks/` — versioned git hooks; enable them with `make hooks`.
 
 ## Rules
 
 - Scaffold every skill with `somnio-skill-creator`; do not create folders by hand.
 - Never hand-edit the Skills table in `README.md`. It is generated between the
   `<!-- skills:start -->` / `<!-- skills:end -->` markers — run `make sync`.
-- Run `make check` before committing. CI runs the same checks on every pull request.
+- Run `make check` before committing. CI and the pre-push hook run the same gates.
 - Skill folder names are kebab-case and match the `name` in the frontmatter exactly.
 - `SKILL.md` stays under 500 lines. Long material goes in `references/`,
   deterministic steps in `scripts/`.
@@ -42,6 +44,18 @@ source of truth for every area repository — update it there, never fork it.
   third-party packages, no build step.
 - Bump `version` in `plugins/somnio-ai-solutions/.claude-plugin/plugin.json` when
   the set of skills changes.
+
+## Tests
+
+- Every script under `skills/*/scripts/` is covered by `tests/`, and the gate is
+  **100% line coverage per file** — not an aggregate average. It does not go down:
+  when a line is hard to reach, either test it or delete it.
+- Run them with `make test` (fast) or `make coverage` (with the gate).
+- The suite uses stdlib `unittest` and real temporary repositories. No pytest, no
+  mocking library, no third-party import anywhere — `tests/test_code_style.py`
+  enforces that, along with the line limit and the script CLI contract.
+- Enable the pre-push hook once per clone with `make hooks`. It runs validation,
+  the README sync check, and the tests with the coverage gate before every push.
 
 ## Plugins
 
@@ -72,3 +86,15 @@ is inside. `make zip` runs exactly this command after validating.
 - Skill and repository documentation is written in **English**.
 - Respond to the user in the same language they write in. Supported: English and
   Spanish.
+
+## Python rules
+
+Adapted from `somnio-ai-tools/agent-rules`; see `.claude/rules/README.md` for what
+was changed and why.
+
+@.claude/rules/python/code-style.md
+@.claude/rules/python/module-structure.md
+@.claude/rules/python/function-design.md
+@.claude/rules/python/error-handling.md
+@.claude/rules/python/typing.md
+@.claude/rules/python/testing-unit.md

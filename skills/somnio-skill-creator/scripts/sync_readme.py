@@ -87,7 +87,9 @@ def build_table(repo_root: Path) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--repo-root", default=".", help="repository root (default: current directory)")
     parser.add_argument("--check", action="store_true", help="fail instead of writing when out of date")
     args = parser.parse_args()

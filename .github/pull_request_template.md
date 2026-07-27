@@ -4,7 +4,8 @@
 
 ## Checklist
 
-- [ ] `make check` passes locally
+- [ ] `make check` passes locally (validation, README sync, tests at 100% per-file coverage)
+- [ ] New or changed script lines are covered by a test — the gate never goes down
 - [ ] Reviewed with the `somnio-skill-verifier` skill, and its blocking findings are resolved
 - [ ] The skill is **cross-area** (area-specific skills belong in that area's repo)
 - [ ] Frontmatter `description` names concrete triggers and at least one non-trigger

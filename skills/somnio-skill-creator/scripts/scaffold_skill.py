@@ -66,9 +66,6 @@ def find_plugins(repo_root: Path) -> list[Path]:
 
 def render_template(target: Path, name: str, description: str) -> None:
     for path in sorted(target.rglob("*")):
-        if path.name == ".gitkeep":
-            path.unlink()
-            continue
         if not path.is_file():
             continue
         text = path.read_text(encoding="utf-8")
@@ -96,7 +93,9 @@ def link_into_plugins(repo_root: Path, name: str, plugins: list[Path]) -> list[s
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("name", help="skill name in kebab-case, matching its folder")
     parser.add_argument("--description", default=DEFAULT_DESCRIPTION, help="frontmatter description")
     parser.add_argument("--repo-root", default=".", help="repository root (default: current directory)")
@@ -137,8 +136,7 @@ def main() -> int:
 
     print(f"Created skills/{args.name}")
     print(f"  skills/{args.name}/SKILL.md            write the description first")
-    print(f"  skills/{args.name}/scripts/            deterministic helpers (delete if unused)")
-    print(f"  skills/{args.name}/references/         long-form material (delete if unused)")
+    print("  add scripts/ for deterministic helpers and references/ for long-form material")
     for link in links:
         print(f"  {link}   symlink to skills/{args.name}")
     if readme_synced:
