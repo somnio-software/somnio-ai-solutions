@@ -111,6 +111,21 @@ The plugin is saved locally to your machine. Repeat whenever the archive is upda
 
 ---
 
+## 🤝 Importing a skill from somewhere else
+
+Copied a skill from another repo, a plugin or a teammate? Hand it to the [`skill-importer`](./.claude/agents/skill-importer.md) agent instead of adapting it by hand:
+
+```
+Use the skill-importer agent
+https://github.com/somnio-software/somnio-ai-tools/blob/main/skills/<name>/SKILL.md
+```
+
+It asks for the source URL or path and waits for it — it never guesses which skill you meant. Then it fetches the skill, checks it is genuinely cross-area, strips the foreign material, rewrites the frontmatter and body to the standard, audits any bundled script against the [Python rules](./.claude/rules), wires the plugin symlink, syncs this README, and loops on `somnio-skill-verifier` until the validator is clean. It reports what it renamed, deleted and rewrote, plus every decision it refused to take alone.
+
+The agent drives the repository's own skills — it does not reimplement the checks.
+
+---
+
 ## 🧪 Tests
 
 Every script inside a skill is covered by [`tests/`](./tests), and the gate is **100% line coverage per file** — not an aggregate average. A script no test imports reports 0% and fails.
@@ -161,7 +176,9 @@ somnio-ai-solutions/
 ├── CLAUDE.md                                 # Repo-wide rules for Claude Code
 ├── Makefile                                  # Thin entry points to the skills' scripts
 ├── README.md                                 # This file
-├── .claude/rules/python/                     # Python rules, adapted from somnio-ai-tools
+├── .claude/
+│   ├── agents/skill-importer.md              # Adopts a skill copied from another repo
+│   └── rules/python/                         # Python rules, adapted from somnio-ai-tools
 ├── .claude-plugin/
 │   └── marketplace.json                      # Makes this repo a Claude Code marketplace
 ├── .githooks/pre-push                        # Validate · sync · test before every push

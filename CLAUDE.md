@@ -21,6 +21,14 @@ The authoring standard lives in
 `skills/somnio-skill-creator/references/authoring-standard.md`. It is the single
 source of truth for every area repository — update it there, never fork it.
 
+## Agents
+
+- **`skill-importer`** (`.claude/agents/skill-importer.md`) — adopts a skill
+  copied from another repository, URL or machine: it asks for the source and
+  waits for it, then reviews, corrects and reformats the skill to the standard
+  and leaves the validator clean. Use it instead of adapting an import by hand.
+  It drives the skills above; it never reimplements their checks.
+
 ## Layout
 
 - `skills/<skill-name>/` — the source of truth for every skill.
