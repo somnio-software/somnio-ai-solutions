@@ -8,6 +8,7 @@ The skills that every area shares — including the ones that create and verify 
 
 [![Status: Internal](https://img.shields.io/badge/Status-Internal%20Only-red?style=for-the-badge)](#)
 [![Scope: Cross-area](https://img.shields.io/badge/Scope-Cross--area-purple?style=for-the-badge)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](./LICENSE)
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-D97757?style=flat-square&logo=anthropic&logoColor=white)](#)
 [![Skills](https://img.shields.io/badge/Skills-SKILL.md-3178C6?style=flat-square)](#)
@@ -106,3 +107,5 @@ Branch from `main`, follow [`CLAUDE.md`](./CLAUDE.md) and the [authoring standar
 ## 🔒 Repository Status
 
 Internal Somnio Software repository. **Not for distribution outside the organization.**
+
+Licensed under the [MIT License](./LICENSE) — the same terms the rest of Somnio's AI repositories carry, so code can move between them and be opened up later without a relicensing exercise.
