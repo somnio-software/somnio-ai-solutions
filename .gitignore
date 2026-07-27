@@ -1,0 +1,28 @@
+# misc
+.DS_Store
+*.pem
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# node
+node_modules/
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+
+# editors
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+
+# scratch — not committed
+tmp/
+test_temp/

@@ -1,0 +1,18 @@
+{
+  "name": "somnio-ai",
+  "owner": {
+    "name": "Somnio Software",
+    "url": "https://github.com/somnio-software"
+  },
+  "metadata": {
+    "description": "Somnio's marketplace of cross-area Claude Code skills.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "somnio-ai-solutions",
+      "source": "./plugins/somnio-ai-solutions",
+      "description": "Generic, cross-area Claude Code skills for every team at Somnio Software."
+    }
+  ]
+}

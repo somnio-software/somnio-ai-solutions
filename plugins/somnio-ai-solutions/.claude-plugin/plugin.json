@@ -1,0 +1,17 @@
+{
+  "name": "somnio-ai-solutions",
+  "version": "0.1.0",
+  "description": "Generic, cross-area Claude Code skills for every team at Somnio Software — skill authoring, verification, and shared workflows that are not tied to a single department.",
+  "author": {
+    "name": "Somnio Software"
+  },
+  "repository": "https://github.com/somnio-software/somnio-ai-solutions",
+  "license": "MIT",
+  "keywords": [
+    "somnio",
+    "claude-code",
+    "skills",
+    "cross-area",
+    "internal-tools"
+  ]
+}
