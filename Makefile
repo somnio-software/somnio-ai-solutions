@@ -1,35 +1,41 @@
+# Thin entry points to the harness. The harness itself lives in the skills:
+#   skills/somnio-skill-creator   — creates skills
+#   skills/somnio-skill-verifier  — validates them
+# Ask Claude Code for those skills instead of driving them by hand when you can.
+
 .DEFAULT_GOAL := help
-.PHONY: help new-skill validate sync sync-check check list package
+.PHONY: help validate fix sync sync-check check zip
 
 PYTHON ?= python3
+PLUGIN_NAME := somnio-ai-solutions
+VALIDATOR := skills/somnio-skill-verifier/scripts/validate_skills.py
+SYNC_README := skills/somnio-skill-creator/scripts/sync_readme.py
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 	@echo
-	@echo "  Example: make new-skill NAME=somnio-skill-creator DESC=\"Creates new Somnio skills.\""
+	@echo "  To create a skill, ask Claude Code for the somnio-skill-creator skill."
 
-new-skill: ## Scaffold a new skill (NAME=<skill-name> [DESC="..."])
-ifndef NAME
-	$(error NAME is required — e.g. make new-skill NAME=somnio-skill-creator)
-endif
-	@./scripts/new-skill.sh "$(NAME)" $(if $(DESC),"$(DESC)",)
+validate: ## Validate every skill (what CI runs on pull requests)
+	@$(PYTHON) $(VALIDATOR)
 
-validate: ## Validate frontmatter, naming and plugin symlinks
-	@$(PYTHON) scripts/validate-skills.py
+fix: ## Recreate missing plugin symlinks and drop orphans
+	@$(PYTHON) $(VALIDATOR) --fix
 
 sync: ## Regenerate the README skills table
-	@$(PYTHON) scripts/sync-readme.py
+	@$(PYTHON) $(SYNC_README)
 
 sync-check: ## Fail if the README skills table is out of date
-	@$(PYTHON) scripts/sync-readme.py --check
+	@$(PYTHON) $(SYNC_README) --check
 
-check: validate sync-check ## Everything CI runs
+check: validate sync-check ## Everything CI checks on a pull request
 
-list: ## List the skills in this repository
-	@$(PYTHON) -c "from pathlib import Path; import sys; sys.path.insert(0, 'scripts'); \
-	from skill_index import load_skills; \
-	[print(f'{s.path.name:<32} {s.description[:80]}') for s in load_skills()]"
-
-package: check ## Build plugins/somnio-ai-solutions.zip for Claude Desktop
-	@./scripts/package-plugin.sh
+zip: check ## Build the plugin archive locally (CI does this automatically on main)
+	@cd plugins && rm -f $(PLUGIN_NAME).zip && zip -r $(PLUGIN_NAME).zip $(PLUGIN_NAME)/ \
+		--exclude "*.DS_Store" \
+		--exclude "*/.venv/*" \
+		--exclude "*/.ruff_cache/*" \
+		--exclude "*/__pycache__/*" \
+		--exclude "*/.git/*"
+	@echo "Built plugins/$(PLUGIN_NAME).zip — do not commit it, CI rebuilds it on merge."

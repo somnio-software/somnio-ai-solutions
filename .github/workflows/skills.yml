@@ -1,0 +1,101 @@
+name: skills
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "skills/**"
+      - "plugins/**"
+      - ".claude-plugin/**"
+      - ".github/workflows/skills.yml"
+  pull_request:
+    paths:
+      - "skills/**"
+      - "plugins/**"
+      - ".claude-plugin/**"
+      - ".github/workflows/skills.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: skills-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PLUGIN_NAME: somnio-ai-solutions
+  VALIDATOR: skills/somnio-skill-verifier/scripts/validate_skills.py
+  SYNC_README: skills/somnio-skill-creator/scripts/sync_readme.py
+
+jobs:
+  validate:
+    name: Validate skills
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate every skill
+        run: python3 "$VALIDATOR"
+
+      - name: Check the README skills table is in sync
+        run: python3 "$SYNC_README" --check
+
+  package:
+    name: Package plugin
+    needs: validate
+    if: github.event_name != 'pull_request' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Repair plugin symlinks and README index
+        run: |
+          python3 "$VALIDATOR" --fix
+          python3 "$SYNC_README"
+
+      - name: Build the plugin archive
+        run: |
+          # Fixed timestamps keep the archive byte-identical when nothing changed,
+          # so the commit step below is a no-op on unrelated pushes.
+          find skills plugins -exec touch -t 202001010000 {} +
+          cd plugins
+          rm -f "$PLUGIN_NAME.zip"
+          zip -r -X "$PLUGIN_NAME.zip" "$PLUGIN_NAME/" \
+            --exclude "*.DS_Store" \
+            --exclude "*/.venv/*" \
+            --exclude "*/.ruff_cache/*" \
+            --exclude "*/__pycache__/*" \
+            --exclude "*/.git/*"
+
+      - name: Verify the archive is self-contained
+        run: |
+          # zip dereferences symlinks, so every skill must appear as real files.
+          for skill in skills/*/; do
+            name="$(basename "$skill")"
+            unzip -l "plugins/$PLUGIN_NAME.zip" \
+              | grep -q "$PLUGIN_NAME/skills/$name/SKILL.md" \
+              || { echo "::error::$name is missing from the archive"; exit 1; }
+          done
+          unzip -l "plugins/$PLUGIN_NAME.zip"
+
+      - name: Commit the archive
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A plugins README.md
+          if git diff --cached --quiet; then
+            echo "Nothing to commit — the plugin archive is already up to date."
+            exit 0
+          fi
+          git commit -m "chore(plugins): rebuild $PLUGIN_NAME.zip [skip ci]"
+          git push
