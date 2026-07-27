@@ -30,15 +30,19 @@ token and an unauthenticated `gh` both fail against Somnio's private repos.
 2. Strips the foreign material — `.git/`, lockfiles, CI config, the origin's own
    README — and asks before deleting anything it cannot classify.
 3. Normalizes the folder name and frontmatter `name` to the spec.
-4. Rewrites the description for *this* skill library, then runs the trigger test
+4. Translates it to English if it arrived in another language — **and nothing
+   else**: same steps, same commands, same thresholds, same outputs. It reports
+   the counts that prove it. Quoted Spanish trigger vocabulary and per-language
+   translation files are the two exceptions and stay as they are.
+5. Rewrites the description for *this* skill library, then runs the trigger test
    from the rubric.
-5. Rewrites the body to the standard: English, under 500 lines, references one
-   level deep, forward slashes, no time-sensitive statements.
-6. Audits any bundled script against the [Python rules](../.claude/rules) and
+6. Rewrites the body to the standard: under 500 lines, references one level deep,
+   forward slashes, no time-sensitive statements.
+7. Audits any bundled script against the [Python rules](../.claude/rules) and
    flags a third-party import as blocking.
-7. Warns that an imported script needs tests, because the
+8. Warns that an imported script needs tests, because the
    [coverage gate](testing.md) is 100% per file for the whole repository.
-8. Wires the plugin symlink, syncs the README, and loops on the validator until
+9. Wires the plugin symlink, syncs the README, and loops on the validator until
    it is clean.
 
 It reports what it renamed, deleted and rewrote, the trigger test, the real gate

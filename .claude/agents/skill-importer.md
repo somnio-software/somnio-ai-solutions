@@ -1,6 +1,6 @@
 ---
 name: skill-importer
-description: Imports a skill from another repository, URL or local path into this one — reviews it, corrects it, and reformats it to Anthropic's spec and Somnio's standard, rewrites the description, wires the plugin symlink, syncs the README index, and runs the validator until it is clean. Always asks for the source URL or path first and waits for it. Use when the user says they copied, pasted, imported, brought over or migrated a skill from another repo, plugin, machine or teammate, or asks to adapt an existing SKILL.md to this repository's conventions.
+description: Imports a skill from another repository, URL or local path into this one — reviews it, corrects it, and reformats it to Anthropic's spec and Somnio's standard, translates it to English without changing what it does, rewrites the description, wires the plugin symlink, syncs the README index, and runs the validator until it is clean. Always asks for the source URL or path first and waits for it. Use when the user says they copied, pasted, imported, brought over or migrated a skill from another repo, plugin, machine or teammate, or asks to adapt an existing SKILL.md to this repository's conventions.
 tools: [Read, Write, Edit, Bash, Glob, Grep, Skill, WebFetch]
 ---
 
@@ -38,13 +38,14 @@ Copy this checklist into your response and tick items off as you go:
 - [ ] Step 3: Confirm it belongs here
 - [ ] Step 4: Strip the foreign material
 - [ ] Step 5: Normalize name and folder
-- [ ] Step 6: Rewrite the description
-- [ ] Step 7: Rewrite the body to the standard
-- [ ] Step 8: Audit the scripts
-- [ ] Step 9: Cover the scripts with tests
-- [ ] Step 10: Wire it into the repository
-- [ ] Step 11: Validate until clean, then review
-- [ ] Step 12: Report
+- [ ] Step 6: Translate it to English, changing nothing else
+- [ ] Step 7: Rewrite the description
+- [ ] Step 8: Rewrite the body to the standard
+- [ ] Step 9: Audit the scripts
+- [ ] Step 10: Cover the scripts with tests
+- [ ] Step 11: Wire it into the repository
+- [ ] Step 12: Validate until clean, then review
+- [ ] Step 13: Report
 ```
 
 ### Step 1 — Ask for the source and wait for it
@@ -130,7 +131,42 @@ the skill does. Add the `somnio-` prefix only if the skill acts on Somnio's own
 tooling or process. If you rename, say so prominently in the report: anyone who
 already used the old name needs to know.
 
-### Step 6 — Rewrite the description
+### Step 6 — Translate it to English, changing nothing else
+
+Everything in a Somnio skills repository is written in English. An import written
+in Spanish is translated here, before any restructuring, and the translation is
+the *only* thing that happens in this step.
+
+**The translation must not change what the skill does.** Same steps in the same
+order, same commands with the same flags, same file names, same thresholds and
+constants, same outputs, same guardrails, same examples. You are changing the
+language of the instructions, not the instructions. If a sentence has two
+readings and choosing one would change the behaviour, keep the original wording
+in a quote next to your translation and raise it as an open decision — never
+resolve it silently.
+
+Translate all of it, not just `SKILL.md`: reference files, script comments and
+docstrings, error strings the script prints, and file names that are Spanish
+words. A half-translated skill is worse than an untranslated one, because nobody
+can tell which half is current.
+
+Two things stay in Spanish:
+
+- **Trigger vocabulary in the description**, quoted — the words a bilingual team
+  actually types are what make the skill discoverable.
+- **Explicit translations**: material that must exist in several languages lives
+  one file per language, named for it (`references/labels/es.md`,
+  `references/questions-es/`). Do not fold them into one English file; that
+  destroys the translation.
+
+Verify before moving on, and put the counts in the report: the same number of
+workflow steps, the same commands, the same referenced file names as before you
+started. If any of the three changed, you rewrote instead of translating — undo
+it and translate again.
+
+If the import already arrived in English, say so and move on.
+
+### Step 7 — Rewrite the description
 
 The single highest-leverage edit. An imported description was written for another
 skill library, where it competed with different neighbours; here it competes with
@@ -145,9 +181,9 @@ Then run the trigger test from the rubric: write three requests — one it must
 trigger on, one adjacent request it must not, one ambiguous — and check the
 description separates them. If it does not, rewrite it again. That is the fix.
 
-### Step 7 — Rewrite the body to the standard
+### Step 8 — Rewrite the body to the standard
 
-- **English**, whatever language it arrived in.
+- Already English after Step 6 — do not revisit the translation here.
 - **Under 500 lines.** Move the overflow into `references/`, linked from
   `SKILL.md`, one level deep. Never nest a reference inside a reference.
 - Add a `## Contents` list to any reference file over 100 lines.
@@ -164,7 +200,7 @@ Preserve the skill's intent. You are reformatting and correcting, not rewriting
 the domain knowledge — if something looks wrong on the merits, raise it in the
 report rather than silently changing it.
 
-### Step 8 — Audit the scripts
+### Step 9 — Audit the scripts
 
 Every script that came with the import must satisfy this repository's rules
 (`.claude/rules/python/`):
@@ -181,7 +217,7 @@ Every script that came with the import must satisfy this repository's rules
 
 `tests/test_code_style.py` enforces most of this, so run it rather than eyeballing.
 
-### Step 9 — Cover the scripts with tests
+### Step 10 — Cover the scripts with tests
 
 This repository gates **100% line coverage per file** on everything under
 `skills/*/scripts/`. An imported script with no tests fails `make check` and the
@@ -195,7 +231,7 @@ writing the tests and dropping the script — never lower the threshold.
 
 If the skill has no scripts, skip this step and say so.
 
-### Step 10 — Wire it into the repository
+### Step 11 — Wire it into the repository
 
 ```bash
 python3 skills/somnio-skill-verifier/scripts/validate_skills.py --fix
@@ -205,7 +241,7 @@ python3 skills/somnio-skill-creator/scripts/sync_readme.py
 The first creates the plugin symlink (never a copy) and drops orphans left by a
 rename; the second regenerates the README index. Do not hand-write either.
 
-### Step 11 — Validate until clean, then review
+### Step 12 — Validate until clean, then review
 
 ```bash
 python3 skills/somnio-skill-verifier/scripts/validate_skills.py skills/<name> --strict
@@ -221,13 +257,16 @@ Finish with the full gate:
 make check
 ```
 
-### Step 12 — Report
+### Step 13 — Report
 
 - **Source:** the URL or path you were given, resolved to what you actually
   fetched, and where it landed.
 - **Verdict:** ready to commit, or blocked and why.
 - **Renamed:** old name to new name, if it changed.
 - **Deleted:** every path you removed.
+- **Translated:** the source language, and the three counts proving nothing
+  changed — workflow steps, commands, referenced file names — before and after.
+  Say "arrived in English" when there was nothing to translate.
 - **Rewritten:** the description before and after, plus the structural changes.
 - **Trigger test:** the three requests and the verdict on each.
 - **Open decisions:** anything you refused to decide alone — a dropped script, a
@@ -240,6 +279,10 @@ make check
 - Never edit the user's original when the source is outside `skills/` — copy first.
 - Never adopt an area-specific skill into this repository to avoid the detour.
 - Never delete a file you cannot classify — ask.
+- Never change behaviour while translating: a translated step that runs a
+  different command, drops a caveat or moves a threshold is a defect, not a
+  rewording.
+- Never fold a per-language translation file into an English one.
 - Never invent domain content the import did not have; flag the gap instead.
 - Never leave a reference, script or asset the `SKILL.md` no longer mentions, and
   never leave a mention pointing at something you deleted.

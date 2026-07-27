@@ -29,8 +29,27 @@ MAX_BODY_LINES = 500
 # Below this a description almost never carries enough trigger terms.
 MIN_DESCRIPTION_LEN = 40
 
+# Spanish function words that do not occur in English prose. Trigger terms are
+# quoted in a description, and quoted spans never reach this list.
+SPANISH_MARKERS = frozenset(
+    {
+        "que", "para", "con", "del", "los", "las", "una", "por", "como", "cuando",
+        "este", "esta", "pero", "también", "desde", "hasta", "sobre", "entre",
+        "cada", "debe", "puede", "usuario", "archivo", "siguiente", "cualquier",
+        "según", "además", "aunque", "mismo", "tiene",
+    }
+)
+# Five distinct markers in stripped prose is unreachable by accident in English.
+MIN_SPANISH_MARKERS = 5
+
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 RESERVED_WORDS = ("anthropic", "claude")
+CODE_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
+INLINE_CODE_RE = re.compile(r"`[^`]*`")
+QUOTED_RE = re.compile(r"[\"“«][^\"”»]*[\"”»]")
+WORD_RE = re.compile(r"[a-záéíóúñü]+")
+# A file named for a language — labels/es.md, questions-es/…— is a translation.
+LANGUAGE_NAME_RE = re.compile(r"(^|[-_.])[a-z]{2}$")
 XML_TAG_RE = re.compile(r"<[a-zA-Z/][^>]*>")
 MD_LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 FIRST_PERSON_RE = re.compile(r"\b(I|I'll|I can|we|we'll|you can|you should)\b", re.IGNORECASE)
@@ -219,6 +238,46 @@ def check_body(skill: Skill) -> None:
         skill.error("the authoring notes comment was not removed from SKILL.md")
 
 
+def prose_only(text: str) -> str:
+    """Strip code blocks, inline code and quoted spans, leaving the prose."""
+    for pattern in (CODE_BLOCK_RE, INLINE_CODE_RE, QUOTED_RE):
+        text = pattern.sub(" ", text)
+    return text
+
+
+def spanish_markers(text: str) -> list[str]:
+    """Find the Spanish function words in prose. Quoted trigger terms do not count."""
+    words = set(WORD_RE.findall(prose_only(text).lower()))
+    return sorted(SPANISH_MARKERS & words)
+
+
+def is_translation(path: Path) -> bool:
+    """Report whether a file is an explicit translation, named for its language."""
+    return bool(LANGUAGE_NAME_RE.search(path.stem) or LANGUAGE_NAME_RE.search(path.parent.name))
+
+
+def check_language(skill: Skill) -> None:
+    """Flag prose that is not in English, the one language this repository writes in."""
+    for label, text in (("`description`", skill.description), ("SKILL.md", skill.body)):
+        markers = spanish_markers(text)
+        if len(markers) >= MIN_SPANISH_MARKERS:
+            found = ", ".join(markers[:5])
+            skill.warn(f"{label} reads as Spanish ({found}, ...) — everything here is written in English")
+
+    references = skill.path / "references"
+    for reference in sorted(references.rglob("*.md")) if references.is_dir() else []:
+        if is_translation(reference):
+            continue
+        markers = spanish_markers(reference.read_text(encoding="utf-8"))
+        if len(markers) >= MIN_SPANISH_MARKERS:
+            rel = reference.relative_to(skill.path).as_posix()
+            found = ", ".join(markers[:5])
+            skill.warn(
+                f"`{rel}` reads as Spanish ({found}, ...) — write it in English, or name the "
+                "file for its language if it is an explicit translation"
+            )
+
+
 def local_links(text: str) -> list[str]:
     """Extract the relative markdown links, ignoring URLs and anchors."""
     targets = []
@@ -346,6 +405,7 @@ def main() -> int:
             check_body(skill)
             check_name(skill)
             check_description(skill)
+            check_language(skill)
             check_links(skill)
             check_plugin_wiring(skill, plugins, fix=args.fix)
             name = skill.frontmatter.get("name", "").strip()

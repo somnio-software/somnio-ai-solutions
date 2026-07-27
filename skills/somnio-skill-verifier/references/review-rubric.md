@@ -10,6 +10,7 @@ Score each: **blocking**, **should fix**, or **fine**.
 - 3. Information architecture
 - 4. Script hygiene
 - 5. Safety and honesty
+- 6. Language
 - Severity guide
 - Report format
 
@@ -92,6 +93,32 @@ being declared.
 
 **Blocking** when a skill can produce plausible fabricated output — a report, a
 record, an evaluation — with no instruction to ground it in real inputs.
+
+---
+
+## 6. Language
+
+Everything in a Somnio skills repository is written in **English**: the
+description, the body, references, script comments, error strings and file names.
+
+- Is the prose English throughout? The validator flags Spanish prose, but it only
+  reads `SKILL.md` and `references/` — read the scripts and assets yourself.
+- Are the **trigger terms** in the description the exception they should be?
+  Spanish trigger vocabulary belongs there, quoted, when the team searches in
+  Spanish. That is vocabulary, not prose.
+- Where the same material genuinely exists in several languages, is each
+  translation its own file, **named for its language** (`references/labels/es.md`,
+  `references/questions-es/`)? A translation mixed into an English file is not a
+  translation, it is drift.
+- Is English the source the translations follow, rather than a late copy of one
+  of them?
+
+**Should fix** for a stray sentence; **blocking** when a skill arrived in another
+language and was left that way, because from then on every edit compounds the
+problem.
+
+> When a skill has to be translated to satisfy this, the translation must not
+> change what it does — see the language step in the `skill-importer` agent.
 
 ---
 

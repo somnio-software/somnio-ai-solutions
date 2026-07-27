@@ -146,6 +146,75 @@ class BodyTests(unittest.TestCase):
         self.assertIn("template placeholders", messages(self._skill(content)))
 
 
+SPANISH_PROSE = (
+    "Este documento explica como generar el reporte para cada usuario, con los "
+    "datos que vienen desde el archivo de entrada. Cuando el archivo no existe, "
+    "el script debe avisar y salir sin escribir nada."
+)
+
+
+class LanguageTests(unittest.TestCase):
+    def _skill(self, **kwargs):
+        with FakeRepo(plugin=None) as repo:
+            path = repo.add_skill("billing-report", link=False, **kwargs)
+            skill = vs.load_skill(path)
+            vs.check_language(skill)
+        return skill
+
+    def test_english_skill_passes(self):
+        self.assertEqual(self._skill().findings, [])
+
+    def test_spanish_body_warns(self):
+        skill = self._skill(body=f"# Reporte\n\n{SPANISH_PROSE}\n")
+        self.assertIn("SKILL.md reads as Spanish", messages(skill))
+
+    def test_spanish_description_warns(self):
+        skill = self._skill(description=SPANISH_PROSE)
+        self.assertIn("`description` reads as Spanish", messages(skill))
+
+    def test_quoted_spanish_triggers_do_not_warn(self):
+        # Trigger vocabulary is quoted on purpose and must never trip the check.
+        description = (
+            'Creates the billing report. Use this skill when the user asks for it, '
+            'including the Spanish phrasings "generar el reporte para cada usuario", '
+            '"crear el reporte con los datos" or "cuando el archivo no existe".'
+        )
+        self.assertEqual(self._skill(description=description).findings, [])
+
+    def test_spanish_inside_code_blocks_does_not_warn(self):
+        body = f"# Title\n\nSee the sample output:\n\n```\n{SPANISH_PROSE}\n```\n"
+        self.assertEqual(self._skill(body=body).findings, [])
+
+    def test_spanish_reference_warns(self):
+        with FakeRepo(plugin=None) as repo:
+            path = repo.add_skill("s", link=False, body="# S\n\nSee [a](references/a.md).\n")
+            (path / "references").mkdir()
+            (path / "references" / "a.md").write_text(SPANISH_PROSE, encoding="utf-8")
+            skill = vs.load_skill(path)
+            vs.check_language(skill)
+        self.assertIn("`references/a.md` reads as Spanish", messages(skill))
+
+    def test_translation_files_are_exempt(self):
+        with FakeRepo(plugin=None) as repo:
+            path = repo.add_skill("s", link=False, body="# S\n\nSee [labels](references/labels/en.md).\n")
+            (path / "references" / "labels").mkdir(parents=True)
+            (path / "references" / "labels" / "en.md").write_text("# Labels\n", encoding="utf-8")
+            (path / "references" / "labels" / "es.md").write_text(SPANISH_PROSE, encoding="utf-8")
+            (path / "references" / "questions-es").mkdir()
+            (path / "references" / "questions-es" / "dev.md").write_text(SPANISH_PROSE, encoding="utf-8")
+            skill = vs.load_skill(path)
+            vs.check_language(skill)
+        self.assertEqual(skill.findings, [])
+
+    def test_is_translation_recognises_language_names(self):
+        self.assertTrue(vs.is_translation(Path("references/labels/es.md")))
+        self.assertTrue(vs.is_translation(Path("references/labels-es/dev.md")))
+        self.assertFalse(vs.is_translation(Path("references/authoring-standard.md")))
+
+    def test_prose_only_strips_inline_code(self):
+        self.assertEqual(vs.spanish_markers("Run `para los usuarios que puede` now."), [])
+
+
 class LinkTests(unittest.TestCase):
     def test_broken_link_is_an_error(self):
         with FakeRepo(plugin=None) as repo:

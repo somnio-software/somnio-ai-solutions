@@ -7,6 +7,7 @@ plus the conventions shared across the `somnio-*-ai` repositories.
 ## Contents
 
 - The specification (hard limits)
+- Language
 - Naming
 - Writing the description
 - Degrees of freedom
@@ -49,6 +50,36 @@ skill may use), `license`, `metadata`.
 
 Everything else is convention, not schema — but the conventions below are what
 make a skill actually get used.
+
+---
+
+## Language
+
+Every Somnio skills repository is written in **English** — the description, the
+body, references, script comments, error strings and file names. One language
+across four repositories is what lets a skill move between them, and what lets
+anyone review any skill.
+
+Two exceptions, and no others:
+
+- **Trigger vocabulary.** A description names the words a user would really type,
+  and a bilingual team types some of them in Spanish. Quote them:
+  `including the Spanish phrasings "crear una skill", "revisar la skill"`. That is
+  vocabulary inside an English sentence, not Spanish prose.
+- **Explicit translations.** When the same material must exist in several
+  languages — form labels, question banks, anything the skill hands to a person —
+  each translation is its own file, written in its own language and **named for
+  it**: `references/labels/en.md` and `references/labels/es.md`, or
+  `references/questions-en/` and `references/questions-es/`. English is the source
+  the others follow, and the instructions around them stay in English.
+
+The validator flags prose that reads as Spanish in `SKILL.md` and in `references/`,
+skipping files named for a language. It is a warning, not an error, because the
+heuristic cannot be perfect — treat it as one.
+
+When a skill has to be translated to meet this, the translation changes the
+language and nothing else: same steps, same order, same commands, same
+thresholds, same outputs.
 
 ---
 

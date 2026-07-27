@@ -46,8 +46,8 @@ python3 skills/somnio-skill-verifier/scripts/validate_skills.py
 | `--fix` | Recreate missing plugin symlinks and drop orphans |
 
 It checks the frontmatter limits, kebab-case and reserved words, the description
-heuristics, body length, broken or nested references, template leftovers, and the
-plugin symlinks.
+heuristics, body length, prose that is not written in English, broken or nested
+references, template leftovers, and the plugin symlinks.
 
 ### Step 2 — Fix or explain every error
 
