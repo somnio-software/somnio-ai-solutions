@@ -148,7 +148,7 @@ def discover_skills(repo_root: Path, targets: list[str]) -> list[Skill]:
 
 
 def find_plugins(repo_root: Path) -> list[Path]:
-    """Plugin directories, i.e. folders holding a `.claude-plugin/plugin.json`."""
+    """Find the plugin directories, i.e. folders holding a `.claude-plugin/plugin.json`."""
     plugins_dir = repo_root / "plugins"
     if not plugins_dir.is_dir():
         return []
@@ -220,7 +220,7 @@ def check_body(skill: Skill) -> None:
 
 
 def local_links(text: str) -> list[str]:
-    """Relative markdown links, ignoring URLs and anchors."""
+    """Extract the relative markdown links, ignoring URLs and anchors."""
     targets = []
     for target in MD_LINK_RE.findall(text):
         target = target.split("#", 1)[0].strip()
@@ -264,7 +264,7 @@ def check_links(skill: Skill) -> None:
                 skill.warn(f"`scripts/{script.name}` is never mentioned in SKILL.md")
 
 
-def check_plugin_wiring(skill: Skill, plugins: list[Path], fix: bool) -> None:
+def check_plugin_wiring(skill: Skill, plugins: list[Path], *, fix: bool) -> None:
     for plugin in plugins:
         link = plugin / "skills" / skill.folder
         expected = skill.path.resolve()
@@ -286,7 +286,7 @@ def check_plugin_wiring(skill: Skill, plugins: list[Path], fix: bool) -> None:
             skill.error(f"missing plugin symlink `{rel}` — re-run with --fix")
 
 
-def check_orphan_symlinks(repo_root: Path, plugins: list[Path], fix: bool) -> list[str]:
+def check_orphan_symlinks(repo_root: Path, plugins: list[Path], *, fix: bool) -> list[str]:
     problems: list[str] = []
     for plugin in plugins:
         links_dir = plugin / "skills"
@@ -336,7 +336,7 @@ def main() -> int:
     total_errors = 0
     total_warnings = 0
 
-    for problem in check_orphan_symlinks(repo_root, plugins, args.fix):
+    for problem in check_orphan_symlinks(repo_root, plugins, fix=args.fix):
         print(f"  ✗ repo: {problem}")
         total_errors += 1
 
@@ -347,7 +347,7 @@ def main() -> int:
             check_name(skill)
             check_description(skill)
             check_links(skill)
-            check_plugin_wiring(skill, plugins, args.fix)
+            check_plugin_wiring(skill, plugins, fix=args.fix)
             name = skill.frontmatter.get("name", "").strip()
             if name and name in seen:
                 skill.error(f"duplicate skill name, already declared by `{seen[name]}`")

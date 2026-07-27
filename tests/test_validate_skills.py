@@ -12,15 +12,6 @@ def messages(skill) -> str:
     return " | ".join(f.message for f in skill.findings)
 
 
-def check_all(skill, plugins=(), fix=False):
-    vs.check_body(skill)
-    vs.check_name(skill)
-    vs.check_description(skill)
-    vs.check_links(skill)
-    vs.check_plugin_wiring(skill, list(plugins), fix)
-    return skill
-
-
 class ParseFrontmatterTests(unittest.TestCase):
     def test_folded_block_scalar_is_joined_with_spaces(self):
         data, body = vs.parse_frontmatter("---\nname: a\ndescription: >\n  one\n  two\n---\nbody\n")

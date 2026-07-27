@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -117,7 +118,7 @@ def main() -> int:
         return fail(f"{skill_dir.relative_to(repo_root)} already exists")
 
     skill_dir.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["cp", "-R", str(TEMPLATE_DIR), str(skill_dir)], check=True)
+    shutil.copytree(TEMPLATE_DIR, skill_dir)
     render_template(skill_dir, args.name, args.description)
 
     plugins = find_plugins(repo_root)
@@ -133,6 +134,8 @@ def main() -> int:
             text=True,
         )
         readme_synced = result.returncode == 0
+        if not readme_synced:
+            print(f"warning: the README index was not synced: {result.stderr.strip()}", file=sys.stderr)
 
     print(f"Created skills/{args.name}")
     print(f"  skills/{args.name}/SKILL.md            write the description first")

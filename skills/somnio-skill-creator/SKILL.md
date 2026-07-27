@@ -5,8 +5,10 @@ description: >
   writes SKILL.md to Anthropic's spec, wires the plugin symlink, and updates the
   README index. Use this skill when the user asks to create, add, scaffold, write
   or start a new skill, a SKILL.md, or an agent skill, in any somnio-*-ai
-  repository. Do not use it to review or fix an existing skill — that is
-  somnio-skill-verifier.
+  repository, including the Spanish phrasings "crear una skill", "armar una
+  skill" or "agregar una skill nueva". Do not use it to review or fix an existing
+  skill — that is somnio-skill-verifier — and do not use it to adopt a skill
+  copied from another repository, which is the skill-importer agent.
 ---
 
 # Somnio Skill Creator

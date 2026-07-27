@@ -5,8 +5,11 @@ description: >
   standard, then reports what to fix — frontmatter limits, description quality,
   progressive disclosure, script hygiene, and plugin symlinks. Use this skill
   when the user asks to review, verify, validate, audit, lint or improve a skill
-  or a SKILL.md, or before merging skill changes in any somnio-*-ai repository.
-  Do not use it to create a new skill from scratch — that is somnio-skill-creator.
+  or a SKILL.md, or before merging skill changes in any somnio-*-ai repository,
+  including the Spanish phrasings "revisar una skill", "validar la skill" or
+  "auditar las skills". Do not use it to create a new skill from scratch — that is
+  somnio-skill-creator — and do not use it to adopt a skill copied from another
+  repository, which is the skill-importer agent.
 ---
 
 # Somnio Skill Verifier

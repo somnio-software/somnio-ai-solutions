@@ -10,7 +10,8 @@ Usage:
 
     --check   do not write; exit 1 if the table is out of date
 
-Exit codes: 0 = in sync (or updated), 1 = out of date with --check, or no markers.
+Exit codes: 0 = in sync (or updated), 1 = out of date with --check or no markers,
+2 = bad usage.
 """
 
 from __future__ import annotations
@@ -26,7 +27,7 @@ EMPTY_TABLE = "_No skills yet._"
 
 
 def parse_frontmatter(text: str) -> dict[str, str]:
-    """Top-level `key: value` pairs plus folded/literal block scalars."""
+    """Parse the top-level `key: value` pairs plus folded and literal block scalars."""
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
         return {}
@@ -59,7 +60,7 @@ def parse_frontmatter(text: str) -> dict[str, str]:
 
 
 def first_sentence(text: str) -> str:
-    """The 'what it does' half of a description, for the README table."""
+    """Take the 'what it does' half of a description, for the README table."""
     text = " ".join(text.split())
     match = re.search(r"(?<=[.!?])\s", text)
     return text[: match.start()] if match else text
