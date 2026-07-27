@@ -18,12 +18,12 @@ That constraint is why the upstream rules were adapted rather than copied.
 
 | Rule | Adaptation |
 |:-----|:-----------|
-| [`code-style.md`](rules/python/code-style.md) | PEP 8 kept; Ruff replaced by review plus the automated style test, since Ruff is a dependency this repo cannot take. Line length 110. |
-| [`module-structure.md`](rules/python/module-structure.md) | `src/` layout, packaging and structlog dropped; replaced by the script-as-CLI contract that makes scripts importable and testable. |
-| [`function-design.md`](rules/python/function-design.md) | Kept nearly whole — it is stack-independent. |
-| [`error-handling.md`](rules/python/error-handling.md) | Layered exception translation replaced by the "solve, don't defer" rule and CLI exit codes. |
-| [`typing.md`](rules/python/typing.md) | Kept; pyright and `py.typed` dropped (dependency, and nothing is distributed as a package). |
-| [`testing-unit.md`](rules/python/testing-unit.md) | pytest, `pytest-mock` and Hypothesis replaced by stdlib `unittest` and real temporary repositories. |
+| [`code-style.md`](python/code-style.md) | PEP 8 kept; Ruff replaced by review plus the automated style test, since Ruff is a dependency this repo cannot take. Line length 110. |
+| [`module-structure.md`](python/module-structure.md) | `src/` layout, packaging and structlog dropped; replaced by the script-as-CLI contract that makes scripts importable and testable. |
+| [`function-design.md`](python/function-design.md) | Kept nearly whole — it is stack-independent. |
+| [`error-handling.md`](python/error-handling.md) | Layered exception translation replaced by the "solve, don't defer" rule and CLI exit codes. |
+| [`typing.md`](python/typing.md) | Kept; pyright and `py.typed` dropped (dependency, and nothing is distributed as a package). |
+| [`testing-unit.md`](python/testing-unit.md) | pytest, `pytest-mock` and Hypothesis replaced by stdlib `unittest` and real temporary repositories. |
 
 ## Excluded
 

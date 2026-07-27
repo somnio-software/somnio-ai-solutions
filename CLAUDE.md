@@ -38,6 +38,10 @@ source of truth for every area repository — update it there, never fork it.
 - `.claude-plugin/marketplace.json` — makes the repo installable as a marketplace.
 - `tests/` — the harness test suite and its coverage gate.
 - `.githooks/` — versioned git hooks; enable them with `make hooks`.
+- `docs/` — the repository documentation. `README.md` is only an index: the index
+  of Somnio's AI repositories and of the skills and docs this one ships. Long
+  material goes in `docs/`, linked from both indexes — `README.md` and
+  `docs/README.md`.
 
 ## Rules
 
@@ -91,9 +95,16 @@ is inside. `make zip` runs exactly this command after validating.
 
 ## Language
 
-- Skill and repository documentation is written in **English**.
-- Respond to the user in the same language they write in. Supported: English and
-  Spanish.
+- **Everything inside this project is written in English.** Documentation,
+  skills, code, comments, error messages, file and folder names, commit messages
+  and pull requests. There is no "internal file" exemption.
+- The **only** exception is content that exists as an explicit translation: when
+  a skill needs the same material in several languages, each translation lives in
+  its own file, written in its own language and named for it — for example
+  `references/labels/en.md` and `references/labels/es.md`. English is the source
+  the others follow, and the instructions around them stay in English.
+- Replying to the user is conversation, not project content: respond in the
+  language they write in. Supported: English and Spanish.
 
 ## Python rules
 
