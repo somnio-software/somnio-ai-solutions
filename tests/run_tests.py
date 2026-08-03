@@ -109,7 +109,22 @@ def report_coverage(counts: dict, minimum: float) -> bool:
     return True
 
 
+def force_utf8_output() -> None:
+    """Re-encode stdout and stderr as UTF-8 so the coverage marks always print.
+
+    Same reason as the twin in `validate_skills.py`: a Windows console defaults to
+    cp1252, where `✓` raises UnicodeEncodeError and the gate dies while reporting
+    instead of on a real result. The four lines are duplicated rather than shared,
+    because this runner deliberately imports nothing from the repository.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
+
+
 def main() -> int:
+    force_utf8_output()
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )

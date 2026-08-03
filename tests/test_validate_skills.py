@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import unittest
 from pathlib import Path
 
@@ -456,6 +458,23 @@ class MainTests(unittest.TestCase):
             code, output = run_main(vs, ["--repo-root", str(repo.root), str(repo.skill_path("a"))])
         self.assertEqual(code, 0, output)
         self.assertIn("Validating 1 skill(s)", output)
+
+
+class Utf8OutputTests(unittest.TestCase):
+    """The status marks have to print on a console whose default encoding is not UTF-8."""
+
+    def test_a_reconfigurable_stream_is_re_encoded(self):
+        console = io.TextIOWrapper(io.BytesIO(), encoding="cp1252")
+        with contextlib.redirect_stdout(console), contextlib.redirect_stderr(console):
+            vs.force_utf8_output()
+        self.assertEqual(console.encoding, "utf-8")
+        console.write("✓")  # raised UnicodeEncodeError under cp1252
+
+    def test_a_stream_without_reconfigure_is_left_alone(self):
+        captured = io.StringIO()
+        with contextlib.redirect_stdout(captured), contextlib.redirect_stderr(captured):
+            vs.force_utf8_output()
+        self.assertEqual(captured.getvalue(), "")
 
 
 class RealRepositoryTests(unittest.TestCase):

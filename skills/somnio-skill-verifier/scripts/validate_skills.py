@@ -372,7 +372,22 @@ def check_orphan_symlinks(repo_root: Path, plugins: list[Path], *, fix: bool) ->
 # --------------------------------------------------------------------------- #
 
 
+def force_utf8_output() -> None:
+    """Re-encode stdout and stderr as UTF-8 so the status marks always print.
+
+    A Windows console defaults to cp1252, where `✓` raises UnicodeEncodeError and the
+    run dies on its first line of output rather than on a real finding. Streams that
+    cannot be reconfigured, such as the `StringIO` the tests capture into, are left as
+    they are.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
+
+
 def main() -> int:
+    force_utf8_output()
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
