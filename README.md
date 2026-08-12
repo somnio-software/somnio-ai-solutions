@@ -32,6 +32,7 @@ Every area owns its own repository of Claude Code skills. This one holds what is
 | 📈 **Sales** | [`somnio-sales-ai`](https://github.com/somnio-software/somnio-sales-ai) | Sales skills — pipeline, deals, and client follow-up |
 | 📣 **Marketing** | [`somnio-marketing-ai`](https://github.com/somnio-software/somnio-marketing-ai) | Marketing skills — content, campaigns, and brand material |
 | 🧑‍🤝‍🧑 **HR** | [`somnio-hr-ai`](https://github.com/somnio-software/somnio-hr-ai) | HR skills — hiring, onboarding, and people operations |
+| 🧩 **Product** | [`somnio-product-ai`](https://github.com/somnio-software/somnio-product-ai) | Product skills — discovery, requirements, and roadmap material |
 
 > **Rule of thumb:** if a skill only makes sense for one area, it belongs in that area's repository. If any area could use it, it belongs here.
 
