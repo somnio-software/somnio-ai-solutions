@@ -3,8 +3,9 @@
 Repository of **generic, cross-area Claude Code skills** for Somnio Software.
 
 Area-specific skills live in their own repositories (`somnio-engineering-ai`,
-`somnio-finance-ai`, `somnio-pre-sales-ai`). If a skill only makes sense for one
-area, it does not belong here.
+`somnio-em-ai`, `somnio-finance-ai`, `somnio-pre-sales-ai`, `somnio-sales-ai`,
+`somnio-marketing-ai`, `somnio-hr-ai`, `somnio-product-ai`). If a skill only
+makes sense for one area, it does not belong here.
 
 ## The harness is made of skills
 

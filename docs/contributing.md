@@ -29,7 +29,8 @@ make check       # confirm the repository is green on your machine
 
 - A description that would not trigger, or that collides with an existing skill.
 - A skill that is area-specific and belongs in `somnio-engineering-ai`,
-  `somnio-finance-ai` or `somnio-pre-sales-ai`.
+  `somnio-em-ai`, `somnio-finance-ai`, `somnio-pre-sales-ai`, `somnio-sales-ai`,
+  `somnio-marketing-ai`, `somnio-hr-ai` or `somnio-product-ai`.
 - Template authoring notes left in `SKILL.md`.
 - A script with a third-party import, or with no test covering its lines.
 - A hand-edited README skills table, or a hand-made plugin symlink.

@@ -53,9 +53,14 @@ Skills are area-scoped. Confirm the current repository is the right home:
 | If the skill serves | It belongs in |
 |:--------------------|:--------------|
 | Every area | `somnio-ai-solutions` |
-| Engineering / QA only | `somnio-engineering-ai` |
+| Engineering (Tech Leads, engineering teams) | `somnio-engineering-ai` |
+| Engineering management / QA management only | `somnio-em-ai` |
 | Finance only | `somnio-finance-ai` |
 | Pre-sales only | `somnio-pre-sales-ai` |
+| Sales only | `somnio-sales-ai` |
+| Marketing only | `somnio-marketing-ai` |
+| HR only | `somnio-hr-ai` |
+| Product only | `somnio-product-ai` |
 
 If the user is in the wrong repository, say so before scaffolding.
 

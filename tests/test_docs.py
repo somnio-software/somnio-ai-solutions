@@ -62,8 +62,13 @@ class IndexTests(unittest.TestCase):
         for repository in (
             "somnio-ai-solutions",
             "somnio-engineering-ai",
+            "somnio-em-ai",
             "somnio-finance-ai",
             "somnio-pre-sales-ai",
+            "somnio-sales-ai",
+            "somnio-marketing-ai",
+            "somnio-hr-ai",
+            "somnio-product-ai",
         ):
             with self.subTest(repository=repository):
                 self.assertIn(f"github.com/somnio-software/{repository}", readme)

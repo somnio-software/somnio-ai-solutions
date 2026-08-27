@@ -91,9 +91,11 @@ they landed.
 ### Step 3 — Confirm it belongs here
 
 The question that decides everything else: **is this skill cross-area?** This
-repository holds only what every area could use. Engineering, QA, finance and
-pre-sales skills belong in `somnio-engineering-ai`, `somnio-finance-ai` and
-`somnio-pre-sales-ai`.
+repository holds only what every area could use. Engineering, engineering
+management, QA, finance, pre-sales, sales, marketing, HR and product skills
+belong in `somnio-engineering-ai`, `somnio-em-ai`, `somnio-finance-ai`,
+`somnio-pre-sales-ai`, `somnio-sales-ai`, `somnio-marketing-ai`, `somnio-hr-ai`
+and `somnio-product-ai` respectively.
 
 If it is area-specific, stop and say so. Offer to import it into that repository
 instead — the creator and verifier scripts both accept `--repo-root`, so the same

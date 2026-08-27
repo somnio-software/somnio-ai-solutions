@@ -26,7 +26,8 @@ Every area owns its own repository of Claude Code skills. This one holds what is
 | Area | Repository | What lives there |
 |:-----|:-----------|:-----------------|
 | 🌐 **Cross-area** | [`somnio-ai-solutions`](https://github.com/somnio-software/somnio-ai-solutions) **(this repo)** | Generic skills usable by every area — skill creation, verification, and the shared authoring standard |
-| ⚙️ **Engineering** | [`somnio-engineering-ai`](https://github.com/somnio-software/somnio-engineering-ai) | Engineering & QA management skills — HandShake pipeline, job descriptions, AI usage reports, seniority evaluation |
+| ⚙️ **Engineering Management** | [`somnio-em-ai`](https://github.com/somnio-software/somnio-em-ai) | Engineering & QA management skills — HandShake pipeline, job descriptions, AI usage reports, seniority evaluation |
+| 💻 **Engineering** | [`somnio-engineering-ai`](https://github.com/somnio-software/somnio-engineering-ai) | Engineering skills for Tech Leads and engineering teams |
 | 💰 **Finance** | [`somnio-finance-ai`](https://github.com/somnio-software/somnio-finance-ai) | Finance skills — billing, reporting, and financial operations |
 | 🤝 **Pre-Sales** | [`somnio-pre-sales-ai`](https://github.com/somnio-software/somnio-pre-sales-ai) | Pre-sales skills — proposals, estimations, and client-facing material |
 | 📈 **Sales** | [`somnio-sales-ai`](https://github.com/somnio-software/somnio-sales-ai) | Sales skills — pipeline, deals, and client follow-up |
