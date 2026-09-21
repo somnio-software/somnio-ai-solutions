@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+#
+# pre-push hook — runs the same gates as CI and blocks the push when they fail:
+#   1. every skill validates against Anthropic's spec and Somnio's standard
+#   2. the README skills table matches the skills on disk
+#   3. the harness test suite passes with per-file line coverage at or above
+#      the threshold (default 100%)
+#
+# Enable it once per clone with:
+#   git config core.hooksPath .githooks
+#
+# Override the threshold for a single push:
+#   COVERAGE_MIN=95 git push
+#
+# Bypass entirely (use sparingly, e.g. a docs-only change):
+#   git push --no-verify
+#
+set -euo pipefail
+
+COVERAGE_MIN="${COVERAGE_MIN:-100}"
+
+# Resolve the repo root from the hook's own location so it works from any CWD.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+VALIDATOR="$REPO_ROOT/skills/somnio-skill-verifier/scripts/validate_skills.py"
+SYNC_README="$REPO_ROOT/skills/somnio-skill-creator/scripts/sync_readme.py"
+TEST_RUNNER="$REPO_ROOT/tests/run_tests.py"
+
+if [ ! -f "$VALIDATOR" ]; then
+  echo "pre-push: cannot find the validator at $VALIDATOR — skipping the gate." >&2
+  exit 0
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "pre-push: python3 is not on PATH — skipping the gate." >&2
+  exit 0
+fi
+
+cd "$REPO_ROOT"
+
+# 1. Skills must satisfy the spec. Warnings do not block a push; CI reports them.
+echo "pre-push: validating skills…"
+if ! python3 "$VALIDATOR"; then
+  echo "" >&2
+  echo "❌ pre-push: skill validation failed." >&2
+  echo "   Fix the errors above ('python3 $VALIDATOR --fix' repairs symlinks)," >&2
+  echo "   or run 'git push --no-verify' to bypass intentionally." >&2
+  exit 1
+fi
+
+# 2. The README index is generated, so it must never drift from skills/.
+echo "pre-push: checking the README skills table…"
+if ! python3 "$SYNC_README" --check; then
+  echo "" >&2
+  echo "❌ pre-push: the README skills table is stale." >&2
+  echo "   Run 'make sync' and commit the result." >&2
+  exit 1
+fi
+
+# 3. Tests plus the per-file coverage gate. Every script under skills/*/scripts/
+#    must be exercised: a file no test imports reports 0% and fails here.
+if [ ! -f "$TEST_RUNNER" ]; then
+  echo "pre-push: no test runner at $TEST_RUNNER — skipping the coverage gate." >&2
+  exit 0
+fi
+
+echo "pre-push: running tests with coverage (min ${COVERAGE_MIN}%)…"
+if ! python3 "$TEST_RUNNER" --min "$COVERAGE_MIN"; then
+  echo "" >&2
+  echo "❌ pre-push: tests failed or a file is below ${COVERAGE_MIN}% line coverage." >&2
+  echo "   Add tests for the lines listed above, or run 'git push --no-verify'" >&2
+  echo "   to bypass intentionally." >&2
+  exit 1
+fi
+
+echo "✅ pre-push: skills valid, README in sync, tests passing above ${COVERAGE_MIN}% coverage."
+exit 0
