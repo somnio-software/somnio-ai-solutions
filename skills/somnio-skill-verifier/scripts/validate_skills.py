@@ -279,7 +279,13 @@ def check_language(skill: Skill) -> None:
 
 
 def local_links(text: str) -> list[str]:
-    """Extract the relative markdown links, ignoring URLs and anchors."""
+    """Extract the relative markdown links, ignoring URLs, anchors and code.
+
+    A link inside a code block or an inline code span shows the syntax (an output
+    format, a snippet of JavaScript), so it never points at a file.
+    """
+    for pattern in (CODE_BLOCK_RE, INLINE_CODE_RE):
+        text = pattern.sub(" ", text)
     targets = []
     for target in MD_LINK_RE.findall(text):
         target = target.split("#", 1)[0].strip()
@@ -324,25 +330,42 @@ def check_links(skill: Skill) -> None:
 
 
 def check_plugin_wiring(skill: Skill, plugins: list[Path], *, fix: bool) -> None:
+    """Check that the skill ships in a plugin, through a symlink to its folder.
+
+    With one plugin, every skill is wired into it. With several (an area plugin next
+    to a narrower one that ships only a few of the same skills), each skill has to be
+    in at least one of them, and every entry a plugin does have must be a symlink.
+    """
+    wired = False
     for plugin in plugins:
         link = plugin / "skills" / skill.folder
-        expected = skill.path.resolve()
-        if link.is_symlink() and link.resolve() == expected:
+        if len(plugins) > 1 and not link.is_symlink() and not link.exists():
             continue
-        if fix:
-            link.parent.mkdir(parents=True, exist_ok=True)
-            if link.is_symlink() or link.exists():
-                link.unlink()
-            depth = len(link.parent.relative_to(plugin.parent.parent).parts)
-            link.symlink_to(Path(*[".."] * depth) / "skills" / skill.folder)
-            continue
-        rel = link.relative_to(plugin.parent.parent)
-        if not link.is_symlink() and link.exists():
-            skill.error(f"`{rel}` is a copy, not a symlink to skills/{skill.folder}")
-        elif link.is_symlink():
-            skill.error(f"`{rel}` points to {link.resolve()} instead of skills/{skill.folder}")
-        else:
-            skill.error(f"missing plugin symlink `{rel}` — re-run with --fix")
+        wired = True
+        check_plugin_entry(skill, plugin, link, fix=fix)
+    if plugins and not wired:
+        names = ", ".join(f"`{plugin.name}`" for plugin in plugins)
+        skill.error(f"not wired into any plugin: add a symlink to skills/{skill.folder} in one of {names}")
+
+
+def check_plugin_entry(skill: Skill, plugin: Path, link: Path, *, fix: bool) -> None:
+    """Check, or with `fix` repair, one plugin's entry for the skill."""
+    if link.is_symlink() and link.resolve() == skill.path.resolve():
+        return
+    if fix:
+        link.parent.mkdir(parents=True, exist_ok=True)
+        if link.is_symlink() or link.exists():
+            link.unlink()
+        depth = len(link.parent.relative_to(plugin.parent.parent).parts)
+        link.symlink_to(Path(*[".."] * depth) / "skills" / skill.folder)
+        return
+    rel = link.relative_to(plugin.parent.parent)
+    if not link.is_symlink() and link.exists():
+        skill.error(f"`{rel}` is a copy, not a symlink to skills/{skill.folder}")
+    elif link.is_symlink():
+        skill.error(f"`{rel}` points to {link.resolve()} instead of skills/{skill.folder}")
+    else:
+        skill.error(f"missing plugin symlink `{rel}` — re-run with --fix")
 
 
 def check_orphan_symlinks(repo_root: Path, plugins: list[Path], *, fix: bool) -> list[str]:

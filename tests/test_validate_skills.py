@@ -233,6 +233,14 @@ class LinkTests(unittest.TestCase):
             vs.check_links(skill)
         self.assertEqual(skill.findings, [])
 
+    def test_links_inside_code_are_ignored(self):
+        with FakeRepo(plugin=None) as repo:
+            body = "# S\n\nFormat each link as `[text](url)`.\n\n```js\nUPD[i](r,lt,t);\n```\n"
+            path = repo.add_skill("s", link=False, body=body)
+            skill = vs.load_skill(path)
+            vs.check_links(skill)
+        self.assertEqual(skill.findings, [])
+
     def test_nested_reference_warns(self):
         with FakeRepo(plugin=None) as repo:
             path = repo.add_skill("s", link=False, body="# S\n\nSee [a](references/a.md).\n")
@@ -338,6 +346,43 @@ class PluginWiringTests(unittest.TestCase):
             skill = vs.load_skill(repo.add_skill("s", link=False))
             vs.check_plugin_wiring(skill, [], fix=False)
             self.assertEqual(skill.findings, [])
+
+
+def add_plugin(repo: FakeRepo, name: str) -> Path:
+    """A second plugin next to the repository's own, such as a brand plugin."""
+    plugin = repo.root / "plugins" / name
+    (plugin / ".claude-plugin").mkdir(parents=True)
+    (plugin / ".claude-plugin" / "plugin.json").write_text('{"name": "second"}\n', encoding="utf-8")
+    (plugin / "skills").mkdir()
+    return plugin
+
+
+class SeveralPluginsTests(unittest.TestCase):
+    def test_one_of_several_plugins_is_enough(self):
+        with FakeRepo() as repo:
+            repo.add_skill("s")
+            add_plugin(repo, "brand")
+            skill = vs.load_skill(repo.skill_path("s"))
+            vs.check_plugin_wiring(skill, vs.find_plugins(repo.root), fix=False)
+            self.assertEqual(skill.findings, [])
+
+    def test_a_skill_in_none_of_them_is_an_error(self):
+        with FakeRepo() as repo:
+            repo.add_skill("s", link=False)
+            add_plugin(repo, "brand")
+            skill = vs.load_skill(repo.skill_path("s"))
+            vs.check_plugin_wiring(skill, vs.find_plugins(repo.root), fix=True)
+            self.assertIn("not wired into any plugin", messages(skill))
+            self.assertIn("`brand`", messages(skill))
+
+    def test_a_copy_in_the_second_plugin_is_still_an_error(self):
+        with FakeRepo() as repo:
+            repo.add_skill("s")
+            brand = add_plugin(repo, "brand")
+            (brand / "skills" / "s").mkdir()
+            skill = vs.load_skill(repo.skill_path("s"))
+            vs.check_plugin_wiring(skill, vs.find_plugins(repo.root), fix=False)
+            self.assertIn("plugins/brand/skills/s` is a copy", messages(skill).replace("\\", "/"))
 
 
 class OrphanTests(unittest.TestCase):

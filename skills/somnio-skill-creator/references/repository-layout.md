@@ -37,6 +37,10 @@ Repositories with several departments keep one plugin per department
 (`plugins/engineering-management/`, `plugins/qa-management/`); a single-audience
 repository keeps one plugin covering everything.
 
+With one plugin, every skill is wired into it. With several, each skill has to be
+in at least one of them: the validator reports a skill that ships nowhere, and any
+entry a plugin does have must still be a symlink.
+
 ---
 
 ## Why the plugin uses symlinks

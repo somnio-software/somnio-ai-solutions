@@ -44,6 +44,8 @@ plugins/somnio-ai-solutions/
 Plugin entries are **symlinks, never copies**, so the plugin cannot drift from
 the skill it publishes, and `zip` dereferences them when packaging so the archive
 stays self-contained. A copy is a validation error, not a style preference.
+In a repository with several plugins, each skill has to be in at least one of
+them, not in all.
 
 `validate_skills.py --fix` creates a missing symlink and drops one left behind by
 a rename — never hand-write them. The full rationale, and the layout every
