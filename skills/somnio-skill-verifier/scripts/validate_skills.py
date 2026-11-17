@@ -232,7 +232,9 @@ def check_body(skill: Skill) -> None:
         )
     if not any(line.startswith("# ") for line in lines):
         skill.warn("SKILL.md body has no H1 title")
-    if any(token in skill.body for token in PLACEHOLDERS):
+    # A merge field the skill writes on purpose ("Hi {{firstName}}") sits in quotes or in
+    # code; a leftover from the template sits in the prose.
+    if any(token in prose_only(skill.body) for token in PLACEHOLDERS):
         skill.error("SKILL.md still contains template placeholders or authoring notes")
     if "<!--" in skill.body and "delete this comment" in skill.body:
         skill.error("the authoring notes comment was not removed from SKILL.md")

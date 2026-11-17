@@ -147,6 +147,11 @@ class BodyTests(unittest.TestCase):
         content = skill_md("billing-report", body="# T\n\nTODO: write the workflow\n")
         self.assertIn("template placeholders", messages(self._skill(content)))
 
+    def test_merge_fields_in_quotes_or_code_are_not_placeholders(self):
+        body = '# T\n\nOpen with "Hi {{firstName}}, how are you?" and mention `{{company}}`.\n'
+        content = skill_md("billing-report", body=body)
+        self.assertNotIn("template placeholders", messages(self._skill(content)))
+
 
 SPANISH_PROSE = (
     "Este documento explica como generar el reporte para cada usuario, con los "
